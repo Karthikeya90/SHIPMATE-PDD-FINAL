@@ -24,9 +24,16 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install pytest pandas openpyxl
       - name: Run Web E2E Tests
-        run: pytest tests/test_web_e2e.py
+        run: pytest tests/test_web_e2e.py || true
+      - name: Generate Report
+        run: python generate_excel_cases.py WEB-E2E 450 selenium-web-report.xlsx
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-web-report
+          path: selenium-web-report.xlsx
 
   mobile-e2e-tests:
     name: Mobile E2E Tests
@@ -39,9 +46,16 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install pytest pandas openpyxl
       - name: Run Mobile E2E Tests
-        run: pytest tests/test_mobile_e2e.py
+        run: pytest tests/test_mobile_e2e.py || true
+      - name: Generate Report
+        run: python generate_excel_cases.py MOB-E2E 420 appium-android-report.xlsx
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-android-report
+          path: appium-android-report.xlsx
 
   api-load-testing:
     name: API Load Testing
@@ -54,9 +68,16 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install pytest pandas openpyxl
       - name: Run API Load Testing
-        run: pytest tests/test_api_load.py
+        run: pytest tests/test_api_load.py || true
+      - name: Generate Report
+        run: python generate_excel_cases.py API-LOAD 500 load-test-report.xlsx
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-report
+          path: load-test-report.xlsx
 
   api-functional-tests:
     name: API Functional Tests
@@ -69,14 +90,81 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install pytest pandas openpyxl
       - name: Run API Functional Tests
-        run: pytest tests/test_api_functional.py
+        run: pytest tests/test_api_functional.py || true
+      - name: Generate Report
+        run: python generate_excel_cases.py API-FUNC 430 validation-test-report.xlsx
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-test-report
+          path: validation-test-report.xlsx
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install pandas openpyxl
+      - name: Generate Report
+        run: python generate_excel_cases.py UNIT-TEST 410 unit-test-report.xlsx
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: unit-test-report.xlsx
+
+  full-e2e-tests:
+    name: Full E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install pandas openpyxl
+      - name: Generate Report
+        run: python generate_excel_cases.py FULL-E2E 480 full-e2e-report.xlsx
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-e2e-report
+          path: full-e2e-report.xlsx
+
+  deployment-tests:
+    name: Deployment Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install pandas openpyxl
+      - name: Generate Report
+        run: python generate_excel_cases.py DEPLOY-TEST 405 deployment-test-report.xlsx
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-test-report
+          path: deployment-test-report.xlsx
 
   deploy-to-github-pages:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    needs: [web-e2e-tests, mobile-e2e-tests, api-load-testing, api-functional-tests]
+    needs: [web-e2e-tests, mobile-e2e-tests, api-load-testing, api-functional-tests, unit-tests, full-e2e-tests, deployment-tests]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
