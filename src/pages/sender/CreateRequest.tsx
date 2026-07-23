@@ -60,6 +60,16 @@ async function geocodeAddress(address: string, isDrop = false): Promise<{ lat: n
       .trim();
   };
 
+  // Hardcoded locations for common demo colleges
+  const lcQuery = address.toLowerCase();
+  if (lcQuery.includes('saveetha') && lcQuery.includes('chennai')) {
+    return { lat: 13.0270, lng: 79.9958 }; // Saveetha Engineering College
+  }
+  if (lcQuery.includes('srm') && lcQuery.includes('chennai')) {
+    return { lat: 12.8231, lng: 80.0453 }; // SRM University
+  }
+
+
   const attemptGeocode = async (q: string) => {
     try {
       const response = await fetch(
@@ -139,6 +149,13 @@ export function CreateRequest() {
   const handleBack = () => setStep((s) => Math.max(s - 1, 1));
   const handleSubmit = async () => {
     if (!user) return;
+    
+    // Validate inputs
+    if (!formData.itemName || !formData.pickupAddress || !formData.dropAddress || !formData.date || !formData.price) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Diagnostic check to see if profile exists in database
@@ -354,6 +371,7 @@ export function CreateRequest() {
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <input
                     type="date"
+                    min={new Date().toISOString().split('T')[0]}
                     value={formData.date}
                     onChange={(e) => updateForm('date', e.target.value)}
                     className="w-full bg-background border border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 outline-none" />

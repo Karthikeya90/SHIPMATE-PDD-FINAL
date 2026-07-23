@@ -72,12 +72,17 @@ export interface Payment {
   created_at: string;
 }
 
+export type MessageType = 'text' | 'image' | 'voice';
+
 export interface Message {
   message_id: string;
   request_id: string;
   sender_id: string;
   receiver_id: string;
   message: string;
+  message_type?: MessageType;
+  media_url?: string;
+  audio_duration?: number;
   timestamp: string;
 }
 

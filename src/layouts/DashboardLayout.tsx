@@ -56,11 +56,6 @@ const senderNav: NavItem[] = [
   icon: MessageSquare
 },
 {
-  label: 'Payments',
-  href: '/sender/payments',
-  icon: CreditCard
-},
-{
   label: 'History',
   href: '/sender/history',
   icon: History
@@ -91,11 +86,6 @@ const travellerNav: NavItem[] = [
   label: 'Messages',
   href: '/traveller/chat',
   icon: MessageSquare
-},
-{
-  label: 'Earnings',
-  href: '/traveller/earnings',
-  icon: Wallet
 },
 {
   label: 'History',

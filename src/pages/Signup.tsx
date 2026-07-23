@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { isOriginalEmail } from '../lib/emailValidation';
+import { toast } from 'sonner';
 import { Role } from '../data/types';
 export function Signup() {
   const location = useLocation();
@@ -17,9 +19,17 @@ export function Signup() {
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isOriginalEmail(email)) {
+      toast.error('Please use a valid, original email address to register.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await register(name, email, password, role);
+      // If email confirmation is required, ProtectedRoute will catch them and send them to /login
+      // while they check their email. If not, they go to /dashboard.
       navigate('/dashboard');
     } catch (error) {
 

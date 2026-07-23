@@ -135,12 +135,6 @@ export function SenderPayments() {
           </div>
         )}
       </div>
-
-      {/* Info Banner */}
-      <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-sm text-muted-foreground">
-        <p className="font-semibold text-foreground mb-1">💡 How Payments Work</p>
-        <p>When you post a delivery request and set a price (in ₹), the amount is held until the traveller marks the delivery as complete. Once delivered, the ₹ amount is automatically transferred to the traveller's earnings account.</p>
-      </div>
     </div>
   );
 }

@@ -86,7 +86,7 @@ CREATE POLICY "Authenticated users can create deliveries" ON deliveries
   FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
 CREATE POLICY "Involved users can update deliveries" ON deliveries
-  FOR UPDATE USING (auth.uid() = sender_id OR auth.uid() = traveller_id);
+  FOR UPDATE USING (auth.uid() = sender_id OR auth.uid() = traveller_id OR traveller_id IS NULL);
 
 -- Notifications: Users can only see their own notifications
 CREATE POLICY "Users can view their own notifications" ON notifications

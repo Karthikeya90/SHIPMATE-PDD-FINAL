@@ -27,7 +27,7 @@ export function TravellerTracking() {
   useEffect(() => {
     if (!user) return;
     deliveryService.getRequestsForTraveller(user.user_id).then(async (reqs) => {
-      const active = reqs.filter((r) => ['matched', 'picked_up', 'in_transit'].includes(r.status));
+      const active = reqs.filter((r) => ['matched', 'picked_up', 'in_transit', 'delivered'].includes(r.status));
       setActiveDeliveries(active);
       if (active.length > 0) {
         const first = active[0];
@@ -72,11 +72,16 @@ export function TravellerTracking() {
   const statusSteps = [
     { key: 'matched', label: 'Accepted', sub: 'Request accepted by you' },
     { key: 'picked_up', label: 'Picked Up', sub: 'Package collected from sender' },
-    { key: 'in_transit', label: 'In Transit', sub: 'On the way to destination' },
     { key: 'delivered', label: 'Delivered', sub: 'Package delivered successfully' }
   ];
-  const getStepIndex = (status: string) =>
-    statusSteps.findIndex((s) => s.key === status);
+
+  // Map actual DB status to our 3-step display index
+  const getStepIndex = (status: string) => {
+    if (status === 'matched') return 0;
+    if (status === 'picked_up' || status === 'in_transit') return 1;
+    if (status === 'delivered') return 2;
+    return -1;
+  };
 
   if (isLoading) {
     return (
@@ -277,8 +282,13 @@ export function TravellerTracking() {
                 />
                 <div className="space-y-5">
                   {statusSteps.map((step, i) => {
+                    // Accepted (i=0): tick as soon as matched or beyond
+                    // Picked Up (i=1): tick when picked_up/in_transit/delivered; Current badge when matched
+                    // Delivered (i=2): tick when delivered; Current badge when delivered
                     const done = stepIdx >= i;
-                    const current = stepIdx === i;
+                    const showCurrentBadge =
+                      (i === 1 && stepIdx === 0) ||   // Picked Up is "Current" when Accepted
+                      (i === 2 && stepIdx === 2);      // Delivered is "Current" when delivered
                     return (
                       <div key={step.key} className="flex items-start gap-4 relative z-10">
                         <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all ${
@@ -295,8 +305,8 @@ export function TravellerTracking() {
                         <div className="flex-1 pt-0.5">
                           <p className={`text-sm font-semibold ${done ? 'text-foreground' : 'text-muted-foreground'}`}>
                             {step.label}
-                            {current && (
-                              <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                            {showCurrentBadge && (
+                              <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                                 Current
                               </span>
                             )}

@@ -1,77 +1,45 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import { Icon } from 'leaflet';
 import {
   Package,
-  MapPin,
   CheckCircle2,
-  Clock,
   MessageSquare,
-  Phone,
   ArrowLeft,
   ShieldCheck,
   Search
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { deliveryService } from '../../services/deliveryService';
 import { DeliveryRequest, User } from '../../data/types';
 
-import { format } from 'date-fns';
-// Custom Map Icons
-const pickupIcon = new Icon({
-  iconUrl:
-  'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl:
-  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-const dropIcon = new Icon({
-  iconUrl:
-  'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
-  shadowUrl:
-  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-const travellerIcon = new Icon({
-  iconUrl:
-  'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl:
-  'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+
 export function DeliveryTracking() {
   const { id } = useParams<{
     id: string;
   }>();
+  const { user } = useAuth();
   const [request, setRequest] = useState<DeliveryRequest | null>(null);
   const [traveller, setTraveller] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0.1);
 
-  const statuses = [
-    'requested',
-    'matched',
-    'picked_up',
-    'in_transit',
-    'delivered'
-  ];
-
-  const currentStatusIndex = request ? statuses.indexOf(request.status) : -1;
 
   useEffect(() => {
     const loadData = async () => {
-      if (!id) return;
       try {
+        if (!id) {
+          if (!user) return;
+          const reqs = await deliveryService.getRequestsForSender(user.user_id);
+          const active = reqs.filter(r => ['requested', 'matched', 'picked_up', 'in_transit', 'delivered'].includes(r.status));
+          if (active.length > 0) {
+            const req = active[0];
+            setRequest(req);
+            if (req.traveller_id) {
+              const t = await deliveryService.getUserById(req.traveller_id);
+              if (t) setTraveller(t);
+            }
+          }
+          return;
+        }
         const req = await deliveryService.getRequestById(id);
         if (req) {
           setRequest(req);
@@ -87,16 +55,10 @@ export function DeliveryTracking() {
       }
     };
     loadData();
-  }, [id]);
+  }, [id, user]);
 
-  useEffect(() => {
-    if (currentStatusIndex >= 2 && currentStatusIndex < 4) {
-      const interval = setInterval(() => {
-        setProgress((p) => Math.min(0.95, p + 0.02));
-      }, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [currentStatusIndex]);
+  const statuses = ['requested', 'matched', 'picked_up', 'in_transit', 'delivered'];
+  const currentStatusIndex = request ? statuses.indexOf(request.status) : -1;
 
   if (isLoading) {
     return (
@@ -109,15 +71,6 @@ export function DeliveryTracking() {
     return <div className="text-center py-20">Delivery not found.</div>;
   }
 
-  // Mock traveller location (simulating movement)
-  const travellerLoc = {
-    lat: request.pickup_location.lat + (request.drop_location.lat - request.pickup_location.lat) * progress,
-    lng: request.pickup_location.lng + (request.drop_location.lng - request.pickup_location.lng) * progress
-  };
-  const centerLat =
-  (request.pickup_location.lat + request.drop_location.lat) / 2;
-  const centerLng =
-  (request.pickup_location.lng + request.drop_location.lng) / 2;
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center gap-4 mb-2">
@@ -137,160 +90,91 @@ export function DeliveryTracking() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Column: Map & Status */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Map */}
-          <div className="bg-card border border-border rounded-3xl overflow-hidden h-[400px] relative z-0">
-            <MapContainer
-              center={[centerLat, centerLng]}
-              zoom={8}
-              style={{
-                height: '100%',
-                width: '100%'
-              }}
-              zoomControl={false}>
-              
-              <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>' />
-              
-              <Marker
-                position={[
-                request.pickup_location.lat,
-                request.pickup_location.lng]
-                }
-                icon={pickupIcon}>
-                
-                <Popup className="custom-popup">
-                  Pickup: {request.pickup_location.address}
-                </Popup>
-              </Marker>
-              <Marker
-                position={[
-                request.drop_location.lat,
-                request.drop_location.lng]
-                }
-                icon={dropIcon}>
-                
-                <Popup>Drop-off: {request.drop_location.address}</Popup>
-              </Marker>
-
-              {currentStatusIndex >= 2 && currentStatusIndex < 4 &&
-              <Marker
-                position={[travellerLoc.lat, travellerLoc.lng]}
-                icon={travellerIcon}>
-                
-                  <Popup>Traveller Location</Popup>
-                </Marker>
-              }
-
-              <Polyline
-                positions={[
-                [request.pickup_location.lat, request.pickup_location.lng],
-                [request.drop_location.lat, request.drop_location.lng]]
-                }
-                color="#22d3ee"
-                weight={3}
-                dashArray="10, 10"
-                opacity={0.5} />
-              
-            </MapContainer>
-
-            {/* Status Overlay */}
-            <div className="absolute top-4 left-4 right-4 z-[400] bg-card/90 backdrop-blur border border-border rounded-2xl p-4 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold uppercase tracking-wider text-primary">
-                  Estimated Delivery
-                </span>
-                <span className="text-sm font-medium">
-                  {format(new Date(request.delivery_date), 'MMM d, h:mm a')}
-                </span>
-              </div>
-              <div className="w-full bg-background rounded-full h-2.5 mb-1 overflow-hidden">
-                <motion.div
-                  className="bg-primary h-2.5 rounded-full"
-                  initial={{
-                    width: 0
-                  }}
-                  animate={{
-                    width: `${Math.max(5, currentStatusIndex / (statuses.length - 1) * 100)}%`
-                  }}
-                  transition={{
-                    duration: 1,
-                    ease: 'easeOut'
-                  }}>
-                </motion.div>
-              </div>
-            </div>
-          </div>
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Left Column: Status */}
+        <div className="space-y-6">
 
           {/* Timeline */}
           <div className="bg-card border border-border rounded-3xl p-6 md:p-8">
             <h3 className="text-lg font-semibold mb-6">Delivery Status</h3>
-            <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
+            <div className="relative">
+              {/* Vertical connecting line */}
+              <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-border" />
+              <div
+                className="absolute left-5 top-5 w-0.5 bg-primary transition-all duration-700"
+                style={{
+                  height: currentStatusIndex >= 4
+                    ? 'calc(100% - 20px)'
+                    : currentStatusIndex >= 2
+                    ? 'calc(50% - 10px)'
+                    : currentStatusIndex >= 1
+                    ? '0%'
+                    : '0%'
+                }}
+              />
+              <div className="space-y-6">
               {[
               {
-                id: 'requested',
-                label: 'Request Created',
-                desc: 'Waiting for traveller',
+                statusIndex: 1,
+                id: 'matched',
+                label: 'Accepted',
+                desc: traveller ? 'Request accepted by traveller' : 'Waiting for traveller to accept',
+                icon: CheckCircle2
+              },
+              {
+                statusIndex: 2,
+                id: 'picked_up',
+                label: 'Picked Up',
+                desc: 'Package collected from sender',
                 icon: Package
               },
               {
-                id: 'matched',
-                label: 'Traveller Assigned',
-                desc: traveller ?
-                `${traveller.name} accepted` :
-                'Matching...',
-                icon: ShieldCheck
-              },
-              {
-                id: 'picked_up',
-                label: 'Item Picked Up',
-                desc: 'Traveller has the item',
-                icon: MapPin
-              },
-              {
-                id: 'in_transit',
-                label: 'In Transit',
-                desc: 'Heading to destination',
-                icon: Clock
-              },
-              {
+                statusIndex: 4,
                 id: 'delivered',
                 label: 'Delivered',
-                desc: 'Item reached destination',
+                desc: 'Package delivered successfully',
                 icon: CheckCircle2
               }].
-              map((step, i) => {
-                const isCompleted = currentStatusIndex >= i;
-                const isCurrent = currentStatusIndex === i;
+              map((step) => {
+                const isCompleted = currentStatusIndex >= step.statusIndex;
+                const showCurrentBadge =
+                  (step.id === 'picked_up' && currentStatusIndex === 1) ||
+                  (step.id === 'delivered' && currentStatusIndex >= 4);
+
                 return (
                   <div
                     key={step.id}
-                    className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                    
+                    className="flex items-start gap-4 relative z-10">
+
                     <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-card bg-background shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10 transition-colors ${isCompleted ? 'border-primary/20 bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
-                      
+                      className={`flex items-center justify-center w-10 h-10 rounded-full border-2 flex-shrink-0 shadow-sm transition-all ${
+                        isCompleted
+                          ? 'bg-primary border-primary text-primary-foreground'
+                          : 'bg-card border-border text-muted-foreground'
+                      }`}>
                       <step.icon className="h-4 w-4" />
                     </div>
 
-                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl border border-border bg-background/50 backdrop-blur-sm">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4
-                          className={`font-semibold ${isCurrent ? 'text-primary' : isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          
+                    <div className="flex-1 py-2">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h4 className={`font-semibold ${
+                          isCompleted ? 'text-foreground' : 'text-muted-foreground'
+                        }`}>
                           {step.label}
                         </h4>
+                        {showCurrentBadge && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary uppercase tracking-wider">
+                            Current
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {step.desc}
                       </p>
                     </div>
                   </div>);
-
               })}
+              </div>
             </div>
           </div>
         </div>
@@ -325,9 +209,6 @@ export function DeliveryTracking() {
                   
                     <MessageSquare className="h-4 w-4" /> Chat
                   </Link>
-                  <button className="flex-1 bg-card border border-border hover:bg-muted py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
-                    <Phone className="h-4 w-4" /> Call
-                  </button>
                 </div>
               </div> :
 

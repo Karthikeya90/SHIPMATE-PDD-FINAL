@@ -129,8 +129,15 @@ export const authService = {
     if (error) throw new Error('Failed to update profile');
   },
 
-  async resetPassword(_email: string): Promise<void> {
-    // TODO: implement with supabase.auth.resetPasswordForEmail
-    return;
+  async resetPassword(email: string): Promise<void> {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw new Error(error.message);
+  },
+
+  async updatePassword(password: string): Promise<void> {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw new Error(error.message);
   }
 };

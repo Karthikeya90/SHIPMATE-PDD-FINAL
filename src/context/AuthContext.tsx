@@ -17,6 +17,8 @@ interface AuthContextType {
   ) => Promise<void>;
   logout: () => void;
   updateUser: (updatedFields: Partial<User>) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,9 +72,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     role: Role
   ) => {
     try {
-      const { user } = await authService.register(name, email, password, role);
-      setUser(user);
-      toast.success('Account created successfully!');
+      const { user, token } = await authService.register(name, email, password, role);
+      if (!token) {
+        toast.success('Registration successful! Please check your email to verify your account.');
+      } else {
+        setUser(user);
+        toast.success('Account created successfully!');
+      }
     } catch (error: any) {
       toast.error(error.message || 'Registration failed');
       throw error;
@@ -97,6 +103,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      await authService.resetPassword(email);
+      toast.success('Password reset link sent to your email!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send reset link');
+      throw error;
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    try {
+      await authService.updatePassword(password);
+      toast.success('Password updated successfully!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update password');
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -106,7 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
-        updateUser
+        updateUser,
+        resetPassword,
+        updatePassword
       }}>
       {children}
     </AuthContext.Provider>
