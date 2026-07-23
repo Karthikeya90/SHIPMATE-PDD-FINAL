@@ -37,16 +37,17 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Verify Capacitor CLI version
-        run: npx cap --version
+      - name: Verify Capacitor CLI version (local)
+        run: ./node_modules/.bin/cap --version
 
-      - name: Build Web App & Sync Capacitor
+      - name: Build Vite Web App
         env:
           VITE_SUPABASE_URL: https://qghptevabshirensskir.supabase.co
           VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnaHB0ZXZhYnNoaXJlbnNza2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1OTI4OTUsImV4cCI6MjA5NzE2ODg5NX0.IR0MTiLqwXpXPM4gXQYbnpyIEp6iz8_85sFiufBila4
-        run: |
-          npx vite build
-          npx cap sync android
+        run: ./node_modules/.bin/vite build
+
+      - name: Sync Capacitor (local binary - no npx)
+        run: ./node_modules/.bin/cap sync android
 
       - name: Build Android Debug APK
         working-directory: ./android
@@ -63,8 +64,8 @@ jobs:
       - name: Create or Update GitHub Release with APK
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.1
-          name: "SHIPMATE Mobile App APK v1.0.1"
+          tag_name: v1.0.2
+          name: "SHIPMATE Mobile App APK v1.0.2"
           body: |
             ## 📱 SHIPMATE Mobile Android APK Download
 
