@@ -6,13 +6,13 @@ SHIPMATE is a peer-to-peer package delivery platform connecting senders with tra
 
 ## 📲 Direct Mobile App (APK) Download
 
-[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/actions)
+[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/actions/workflows/build-apk.yml)
 
 ### 📲 Quick Download Steps from GitHub:
-1. **[Click Here to Open GitHub Actions Runs](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/actions)** (or check the [GitHub Releases Page](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases)).
-2. Tap on the latest **"Build & Release Android APK"** workflow run.
-3. Scroll down to **Artifacts** at the bottom of the run page.
-4. Download **`shipmate-android-apk`** (or `app-debug.apk`), extract/open it on your Android phone, and tap **Install**!
+1. **[Click Here to Open Build & Release Android APK Runs](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/actions/workflows/build-apk.yml)**.
+2. Click on the top-most (latest) run.
+3. Scroll down to **Artifacts** at the bottom of the page.
+4. Download **`shipmate-android-apk`**, extract/open it on your Android phone, and tap **Install**!
 
 ---
 
