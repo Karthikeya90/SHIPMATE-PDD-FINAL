@@ -6,16 +6,13 @@ SHIPMATE is a peer-to-peer package delivery platform connecting senders with tra
 
 ## 📲 Direct Mobile App (APK) Download
 
-[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases)
+[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/actions)
 
-### 📲 Quick Download Steps for Mobile:
-1. **[Click Here to Open GitHub Releases](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases)**.
-2. Tap on **`app-debug.apk`** under Assets to download it to your phone.
-3. Open the downloaded `app-debug.apk` file on your Android mobile device.
-4. If prompted by Android, tap **Settings** and enable **"Allow from this source"** / **"Install unknown apps"**.
-5. Tap **Install** and open SHIPMATE!
-
-> ⏱ **Note**: If the GitHub Action workflow is currently running, the release will appear on the [Releases Page](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases) in 2-3 minutes.
+### 📲 Quick Download Steps from GitHub:
+1. **[Click Here to Open GitHub Actions Runs](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/actions)** (or check the [GitHub Releases Page](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases)).
+2. Tap on the latest **"Build & Release Android APK"** workflow run.
+3. Scroll down to **Artifacts** at the bottom of the run page.
+4. Download **`shipmate-android-apk`** (or `app-debug.apk`), extract/open it on your Android phone, and tap **Install**!
 
 ---
 
@@ -74,5 +71,5 @@ To build the `.apk` file locally:
 ## 🛠 Tech Stack
 - **Frontend**: React 18, TypeScript, Vite, Tailwind CSS
 - **Native Bridge**: Capacitor 8 (Android)
-- **CI/CD Build**: GitHub Actions (Automated APK Release)
+- **CI/CD Build**: GitHub Actions (Automated APK Artifacts & Release)
 - **Backend & Auth**: Supabase Database & Realtime Chat

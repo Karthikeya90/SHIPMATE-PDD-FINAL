@@ -46,6 +46,12 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Upload APK Artifact to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: shipmate-android-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
       - name: Create or Update GitHub Release with APK
         uses: softprops/action-gh-release@v2
         with:
