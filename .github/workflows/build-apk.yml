@@ -1,0 +1,63 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Web App & Sync Capacitor
+        env:
+          VITE_SUPABASE_URL: https://qghptevabshirensskir.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnaHB0ZXZhYnNoaXJlbnNza2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1OTI4OTUsImV4cCI6MjA5NzE2ODg5NX0.IR0MTiLqwXpXPM4gXQYbnpyIEp6iz8_85sFiufBila4
+        run: npm run build:mobile
+
+      - name: Build Android Debug APK
+        working-directory: ./android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Create or Update GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "SHIPMATE Mobile App APK v1.0.0"
+          body: |
+            ## 📱 SHIPMATE Mobile Android APK Download
+            
+            This is the official Android APK built automatically for SHIPMATE PDD.
+            
+            ### How to Install on your Android Phone:
+            1. Download `app-debug.apk` directly to your phone.
+            2. Tap the file in your downloads to install.
+            3. If prompted, enable **"Allow installation from unknown sources"** in your phone settings.
+            4. Open SHIPMATE and enjoy peer-to-peer delivery tracking on your mobile!
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

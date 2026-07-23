@@ -4,11 +4,21 @@ SHIPMATE is a peer-to-peer package delivery platform connecting senders with tra
 
 ---
 
-## 📱 Mobile App (Android APK) Installation & Download Guide
+## 📲 Direct Mobile App (APK) Download
 
-You can run SHIPMATE directly on your Android mobile device either by building the native APK or by installing it as a PWA / Capacitor App!
+[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases/download/v1.0.0/app-debug.apk)
 
-### Option 1: Build Android APK locally (Recommended for Device Testing)
+### 📲 Quick Download Steps for Mobile:
+1. **[Click Here to Download Mobile APK](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases/download/v1.0.0/app-debug.apk)** (or visit the [GitHub Releases Page](https://github.com/Karthikeya90/SHIPMATE-PDD-FINAL/releases)).
+2. Open the downloaded `app-debug.apk` file on your Android mobile device.
+3. If prompted by Android, tap **Settings** and enable **"Allow from this source"** / **"Install unknown apps"**.
+4. Tap **Install** and open SHIPMATE!
+
+---
+
+## 📱 Mobile App Development & Local Build Guide
+
+### Option 1: Build Android APK Locally
 To build the `.apk` file locally:
 
 1. **Install Prerequisites**:
@@ -24,11 +34,10 @@ To build the `.apk` file locally:
 4. **Generate APK**:
    - In Android Studio, go to **Build** -> **Build Bundle(s) / APK(s)** -> **Build APK(s)**.
    - Once completed, click **locate** to retrieve `app-debug.apk`.
-   - Transfer `app-debug.apk` to your Android mobile device and install it!
 
 ---
 
-### Option 2: Run as Mobile Web / PWA on Any Mobile Device (Instant Access)
+### Option 2: Run as Mobile Web / PWA on Any Device (Instant Access)
 1. Ensure your web app is running locally:
    ```bash
    npm run dev -- --host
@@ -62,4 +71,5 @@ To build the `.apk` file locally:
 ## 🛠 Tech Stack
 - **Frontend**: React 18, TypeScript, Vite, Tailwind CSS
 - **Native Bridge**: Capacitor 8 (Android)
+- **CI/CD Build**: GitHub Actions (Automated APK Release)
 - **Backend & Auth**: Supabase Database & Realtime Chat
