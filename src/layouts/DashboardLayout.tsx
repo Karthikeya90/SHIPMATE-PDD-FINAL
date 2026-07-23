@@ -13,10 +13,8 @@ import {
   Search,
   Map,
   MessageSquare,
-  CreditCard,
   History,
   Briefcase,
-  Wallet,
   Navigation,
   ArrowLeftRight } from
 'lucide-react';

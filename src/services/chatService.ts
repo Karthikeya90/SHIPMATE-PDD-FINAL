@@ -176,7 +176,9 @@ export const chatService = {
     onNewMessage: (msg: Message) => void
   ): () => void {
     if (useLocal) {
-      return () => {};
+      return () => {
+        // Local cleanup stub
+      };
     }
 
     const channel = supabase
